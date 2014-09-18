@@ -28,6 +28,11 @@ public:
 		bind();
 		length = vlen;
 		glBufferData(GL_ARRAY_BUFFER, vlen*sizeof(T), varr, GL_STATIC_DRAW);
+		unbind();
+	}
+	virtual void draw()
+	{
+		glDrawArrays(GL_TRIANGLES,0,length);
 	}
 	GLuint size() const {
 		return length;

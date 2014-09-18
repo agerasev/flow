@@ -40,12 +40,6 @@ struct tvecn<T,4> {
 	}
 	inline T operator [](int n) const {
         return data[n];
-    }
-	inline T &operator ()(int n) {
-		return data[n];
-	}
-	inline T operator ()(int n) const {
-		return data[n];
 	}
 	inline T x() const {return data[0];}
 	inline T &x() {return data[0];}
@@ -105,5 +99,16 @@ template<typename T>
 inline tvecn<T,4> operator /(const tvecn<T,4> &b, T a) {
 	return b*(static_cast<T>(1)/a);
 }
+
+typedef tvecn<double,4>     dvec4;
+typedef tvecn<float,4>      fvec4;
+typedef tvecn<int,4>		ivec4;
+
+const dvec4 nulldvec4(0.0,0.0,0.0,0.0);
+const fvec4 nullfvec4(0.0f,0.0f,0.0f,0.0f);
+const ivec4 nullivec4(0,0,0,0);
+
+typedef dvec4 vec4;
+const vec4 nullvec4 = nulldvec4;
 
 #endif // VEC4_HPP

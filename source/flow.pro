@@ -21,14 +21,14 @@ HEADERS += \
     4u/gl/texture.hpp \
 	4u/gl/vertexbuffer.hpp \
     4u/gl/vertexshader.hpp \
-    4u/linalg/mat.hpp \
-    4u/linalg/matn.hpp \
-    4u/linalg/matnm.hpp \
-    4u/linalg/vec.hpp \
-    4u/linalg/vec2.hpp \
-    4u/linalg/vec3.hpp \
-    4u/linalg/vec4.hpp \
-    4u/linalg/vecn.hpp \
+	4u/la/mat.hpp \
+	4u/la/matn.hpp \
+	4u/la/matnm.hpp \
+	4u/la/vec.hpp \
+	4u/la/vec2.hpp \
+	4u/la/vec3.hpp \
+	4u/la/vec4.hpp \
+	4u/la/vecn.hpp \
     4u/random/contrand.hpp \
     4u/random/diskrand.hpp \
     4u/random/rand.hpp \
@@ -42,8 +42,31 @@ HEADERS += \
     4u/window/glwindow.hpp \
     4u/window/glxwindow.hpp \
     4u/window/sdlwindow.hpp \
-    4u/window/window.hpp \
-    simulator.hpp
+	4u/window/window.hpp \
+    program/advectprogram.hpp \
+    program/diffusestepprogram.hpp \
+    program/drawprogram.hpp \
+    program/fillprogram.hpp \
+    program/forceprogram.hpp \
+    program/pressurestepprogram.hpp \
+    program/subtractprogram.hpp \
+    simulator.hpp \
+    program/placeprogram.hpp \
+    shape/screenshape.hpp \
+    shape/shape.hpp \
+    shape/quadshape.hpp \
+    shaderset.hpp \
+    doubleframebuffer.hpp
 
 SOURCES += \
     main.cpp
+
+OTHER_FILES += \
+    shader/advect.frag \
+    shader/diffuse_step.frag \
+    shader/draw.frag \
+    shader/fill.frag \
+    shader/force.frag \
+    shader/pressure_step.frag \
+    shader/place.vert \
+    shader/subtract.frag

@@ -59,14 +59,14 @@ public:
 
 	}
 	virtual ~FrameBuffer() {
-
+		glDeleteFramebuffers(1,&id);
 	}
 
 	void bind() {
 		glBindFramebuffer(GL_FRAMEBUFFER, id);
 		glViewport(0,0,width,height);
 	}
-	void unbind() {
+	static void unbind() {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 

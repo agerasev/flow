@@ -6,6 +6,8 @@
 
 class Exception : public std::exception
 {
+private:
+	mutable std::string temp;
 public:
 	Exception() noexcept
 		: std::exception()
@@ -16,9 +18,9 @@ public:
 	{
 
 	}
-	virtual const char *what() const noexcept
+	virtual const char *what() const noexcept override
 	{
-		return "libasarone exception";
+		return (temp = getMessage()).data();
 	}
 
 	virtual std::string getMessage() const noexcept = 0;

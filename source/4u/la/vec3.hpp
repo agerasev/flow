@@ -108,4 +108,15 @@ inline tvecn<T,3> operator ^(const tvecn<T,3> &a, const tvecn<T,3> &b) {
                 );
 }
 
+typedef tvecn<double,3>     dvec3;
+typedef tvecn<float,3>      fvec3;
+typedef tvecn<int,3>		ivec3;
+
+const dvec3 nulldvec3(0.0,0.0,0.0);
+const fvec3 nullfvec3(0.0f,0.0f,0.0f);
+const ivec3 nullivec3(0,0,0);
+
+typedef dvec3 vec3;
+const vec3 nullvec3 = nulldvec3;
+
 #endif // VEC3_HPP

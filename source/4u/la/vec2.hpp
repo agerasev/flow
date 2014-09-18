@@ -100,4 +100,15 @@ inline T operator ^(const tvecn<T,2> &a, const tvecn<T,2> &b) {
 	return a(0)*b(1) - a(1)*b(0);
 }
 
+typedef tvecn<double,2>     dvec2;
+typedef tvecn<float,2>      fvec2;
+typedef tvecn<int,2>		ivec2;
+
+const dvec2 nulldvec2(0.0,0.0);
+const fvec2 nullfvec2(0.0f,0.0f);
+const ivec2 nullivec2(0,0);
+
+typedef dvec2 vec2;
+const vec2 nullvec2 = nulldvec2;
+
 #endif // VEC2_HPP

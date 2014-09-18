@@ -40,16 +40,16 @@ struct tmatnm {
 		}
 	}
 	//Access operators
-    inline T &operator ()(int x, int y) {
+	inline T &operator ()(int x, int y) {
 		return data[y*N + x];
 	}
-    inline T operator ()(int x, int y) const {
+	inline T operator ()(int x, int y) const {
 		return data[y*N + x];
 	}
-    inline T &operator ()(const tvecn<int,2> &v) {
+	inline T &operator ()(const tvecn<int,2> &v) {
 		return data[v(1)*N + v(0)];
 	}
-    inline T operator ()(const tvecn<int,2> &v) const {
+	inline T operator ()(const tvecn<int,2> &v) const {
 		return data[v(1)*N + v(0)];
 	}
     inline tvecn<T,N> row(int n) const {
