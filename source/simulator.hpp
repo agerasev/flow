@@ -30,9 +30,13 @@ private:
 	ScreenShape screen_shape;
 	QuadShape quad_shape;
 
-	double delta = 0.8;
-	int visc_iter = 0x40, diff_iter = 0x0, pres_iter = 0x100;
+    double delta = 1e-2;
+    fvec2 force = fvec2(0.0,1.0);
+    int visc_iter = 0x20, sub_iter = 0x1, pres_iter = 0x200;
+    double viscous_factor = 0.0001;
+    double diffuse_factor = 0.000001;
 
+    bool save_flag = false;
 	SDL_Surface *image_buffer = nullptr;
 	int frame_count = 0;
 
@@ -133,15 +137,15 @@ public:
 		performOperation(shaders.fill_prog, quad_shape, [this]()
 		{
 			shaders.fill_prog.setTransformation(0.2f*fmat2{(1.0*height)/width,0.0,0.0,1.0});
-			shaders.fill_prog.setTranslation(fvec2(-0.2,0.18));
-			shaders.fill_prog.setColor(fvec4(4.0,0.0,0.0,0.0));
+            shaders.fill_prog.setTranslation(fvec2(-0.32,0.1));
+            shaders.fill_prog.setColor(fvec4(2.0,0.0,0.0,1.0));
 		},
 		velocity.src);
 		/* Draw quadraic substance */
 		performOperation(shaders.fill_prog, quad_shape, [this]()
 		{
 			shaders.fill_prog.setTransformation(0.2f*fmat2{(1.0*height)/width,0.0,0.0,1.0});
-			shaders.fill_prog.setTranslation(fvec2(-0.2,0.18));
+			shaders.fill_prog.setTranslation(fvec2(-0.32,0.1));
 			shaders.fill_prog.setColor(fvec4(1.0,1.0,0.0,0.0));
 		},
 		substance.src);
@@ -149,15 +153,15 @@ public:
 		performOperation(shaders.fill_prog, quad_shape, [this]()
 		{
 			shaders.fill_prog.setTransformation(0.2f*fmat2{(1.0*height)/width,0.0,0.0,1.0});
-			shaders.fill_prog.setTranslation(fvec2(0.2,-0.18));
-			shaders.fill_prog.setColor(fvec4(-4.0,0.0,0.0,0.0));
+			shaders.fill_prog.setTranslation(fvec2(0.32,-0.1));
+            shaders.fill_prog.setColor(fvec4(-2.0,0.0,0.0,1.0));
 		},
 		velocity.src);
 		/* Draw quadraic substance */
 		performOperation(shaders.fill_prog, quad_shape, [this]()
 		{
 			shaders.fill_prog.setTransformation(0.2f*fmat2{(1.0*height)/width,0.0,0.0,1.0});
-			shaders.fill_prog.setTranslation(fvec2(0.2,-0.18));
+			shaders.fill_prog.setTranslation(fvec2(0.32,-0.1));
 			shaders.fill_prog.setColor(fvec4(0.0,1.0,1.0,0.0));
 		},
 		substance.src);
@@ -177,6 +181,64 @@ public:
 		velocity.dst);
 		velocity.swap();
 
+		/* Viscous diffusion of velocity */
+		for(int i = 0; i < visc_iter; ++i)
+		{
+			performOperation(shaders.diffuse_step_prog, [this]()
+			{
+				shaders.diffuse_step_prog.bindSourceSampler(velocity.src->getTexture());
+				shaders.diffuse_step_prog.setFactor(viscous_factor);
+				shaders.diffuse_step_prog.setDelta(delta);
+			},
+			velocity.dst);
+			velocity.swap();
+		}
+
+        /* Viscous diffusion of substance */
+        for(int i = 0; i < visc_iter; ++i)
+        {
+            performOperation(shaders.diffuse_step_prog, [this]()
+            {
+                shaders.diffuse_step_prog.bindSourceSampler(substance.src->getTexture());
+                shaders.diffuse_step_prog.setFactor(diffuse_factor);
+                shaders.diffuse_step_prog.setDelta(delta);
+            },
+            substance.dst);
+            substance.swap();
+        }
+
+        /* Force application */
+        performOperation(shaders.force_prog, [this]()
+        {
+            shaders.force_prog.bindVelocitySampler(velocity.src->getTexture());
+            shaders.force_prog.setDelta(delta);
+            shaders.force_prog.setForce(force);
+        },
+        velocity.dst);
+        velocity.swap();
+
+		for(int j = 0; j < sub_iter; ++j)
+		{
+			/* Computing pressure */
+			for(int i = 0; i < pres_iter; ++i)
+			{
+				performOperation(shaders.pressure_step_prog, [this]()
+				{
+					shaders.pressure_step_prog.bindVelocitySampler(velocity.src->getTexture());
+				},
+				velocity.dst);
+				velocity.swap();
+			}
+
+			/* Subtracting pressure gradient */
+			performOperation(shaders.subtract_prog, [this]()
+			{
+				shaders.subtract_prog.bindVelocitySampler(velocity.src->getTexture());
+			},
+			velocity.dst);
+			velocity.swap();
+		}
+
 		/* Advection of substance */
 		performOperation(shaders.advect_prog, [this]()
 		{
@@ -187,69 +249,25 @@ public:
 		substance.dst);
 		substance.swap();
 
-		/* Viscous diffusion of velocity */
-		for(int i = 0; i < visc_iter; ++i)
-		{
-			performOperation(shaders.diffuse_step_prog, [this]()
-			{
-				shaders.diffuse_step_prog.bindSourceSampler(velocity.src->getTexture());
-				shaders.diffuse_step_prog.setFactor(0.000001);
-				shaders.diffuse_step_prog.setDelta(delta);
-			},
-			velocity.dst);
-			velocity.swap();
-		}
-
-		/* Diffusion of substance */
-		/*
-		for(int i = 0; i < diff_iter; ++i)
-		{
-			performOperation(shaders.diffuse_step_prog, [this]()
-			{
-				shaders.diffuse_step_prog.bindSourceSampler(substance.src->getTexture());
-				shaders.diffuse_step_prog.setFactor(0.0001);
-				shaders.diffuse_step_prog.setDelta(delta);
-			},
-			substance.dst);
-			substance.swap();
-		}
-		*/
-
-		/* Computing pressure */
-		for(int i = 0; i < pres_iter; ++i)
-		{
-			performOperation(shaders.pressure_step_prog, [this]()
-			{
-				shaders.pressure_step_prog.bindVelocitySampler(velocity.src->getTexture());
-			},
-			velocity.dst);
-			velocity.swap();
-		}
-
-		/* Subtracting pressure gradient */
-		performOperation(shaders.subtract_prog, [this]()
-		{
-			shaders.subtract_prog.bindVelocitySampler(velocity.src->getTexture());
-		},
-		velocity.dst);
-		velocity.swap();
-
 		/* Draw */
 		performOperation(shaders.draw_prog, [this]()
 		{
 			shaders.draw_prog.bindSubstanceSampler(substance.src->getTexture());
-			// shaders.draw_prog.bindVelocitySampler(velocity.src->getTexture());
+			shaders.draw_prog.bindVelocitySampler(velocity.src->getTexture());
 		});
 
 		/* Save to file */
-		glReadPixels(0,0,width,height,GL_RGB,GL_UNSIGNED_BYTE,image_buffer->pixels);
-		char filename[22] = "renderoutput/0000.bmp";
-		const char *symbols = "0123456789";
-		filename[16] = symbols[(frame_count/1)%10];
-		filename[15] = symbols[(frame_count/10)%10];
-		filename[14] = symbols[(frame_count/100)%10];
-		filename[13] = symbols[(frame_count/1000)%10];
-		SDL_SaveBMP(image_buffer,filename);
+		if(save_flag)
+		{
+			glReadPixels(0,0,width,height,GL_RGB,GL_UNSIGNED_BYTE,image_buffer->pixels);
+			char filename[22] = "renderoutput/0000.bmp";
+			const char *symbols = "0123456789";
+			filename[16] = symbols[(frame_count/1)%10];
+			filename[15] = symbols[(frame_count/10)%10];
+			filename[14] = symbols[(frame_count/100)%10];
+			filename[13] = symbols[(frame_count/1000)%10];
+			SDL_SaveBMP(image_buffer,filename);
+		}
 
 		++frame_count;
 	}

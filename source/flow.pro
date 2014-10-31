@@ -56,7 +56,9 @@ HEADERS += \
     shape/shape.hpp \
     shape/quadshape.hpp \
     shaderset.hpp \
-    doubleframebuffer.hpp
+    doubleframebuffer.hpp \
+    scene.hpp \
+    shape/polygon.hpp
 
 SOURCES += \
     main.cpp

@@ -7,6 +7,7 @@ class Shape : public VertexBuffer
 {
 public:
 	virtual void loadBuffers() = 0;
+    virtual void draw() = 0;
 };
 
 #endif // SHAPE_HPP

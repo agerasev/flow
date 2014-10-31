@@ -8,30 +8,29 @@ class ForceProgram : public PlaceProgram
 private:
 	/* Uniform */
 	GLuint velocity;
-	GLuint source;
+    GLuint delta;
 	GLuint force;
 
 public:
 	virtual void pull() override
 	{
 		PlaceProgram::pull();
-		velocity = getUniform("velocity");
-		source = getUniform("source");
-		force = getUniform("force");
+        velocity = getUniform("uVelocity");
+        delta = getUniform("uDelta");
+        force = getUniform("uForce");
 	}
 	void bindVelocitySampler(GLuint sampler) {
 		glActiveTexture(GL_TEXTURE0);
 		glUniform1i(velocity,0);
 		glBindTexture(GL_TEXTURE_2D, sampler);
 	}
-	void bindSourceSampler(GLuint sampler) {
-		glActiveTexture(GL_TEXTURE1);
-		glUniform1i(source,1);
-		glBindTexture(GL_TEXTURE_2D, sampler);
-	}
-	void setForce(const fvec4 &f)
+    void setDelta(float d)
+    {
+        glUniform1f(delta,d);
+    }
+    void setForce(const fvec2 &f)
 	{
-		glUniform4fv(force,1,f.data);
+        glUniform2fv(force,1,f.data);
 	}
 };
 

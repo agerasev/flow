@@ -6,7 +6,7 @@ int main(int,char*[])
 {
 	SDL_Init(SDL_INIT_VIDEO);
 
-	GLWindow *win = new GLWindow("Flow",Window::Size(400,300));
+    GLWindow *win = new GLWindow("Flow",Window::Size(640,480));
 	Simulator *sim = new Simulator();
 
 	win->setRender(sim);
